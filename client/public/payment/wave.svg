@@ -1,0 +1,12 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <circle cx="128" cy="128" r="124" fill="#17A9DB"/>
+  <g fill="#fff">
+    <circle cx="108" cy="92" r="10"/>
+    <circle cx="148" cy="92" r="10"/>
+  </g>
+  <ellipse cx="128" cy="136" rx="26" ry="40" fill="#f4f4f4"/>
+  <path d="M84 120c-14-10-24-20-29-30-4-10 4-18 13-13 9 5 20 17 28 30z" fill="#111"/>
+  <ellipse cx="106" cy="168" rx="12" ry="8" fill="#f7982a"/>
+  <ellipse cx="150" cy="168" rx="12" ry="8" fill="#f7982a"/>
+  <text x="128" y="224" text-anchor="middle" font-family="Arial, sans-serif" font-size="56" font-weight="700" fill="#ffffff">wave</text>
+</svg>
