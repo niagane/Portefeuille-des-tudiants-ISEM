@@ -1,15 +1,11 @@
-// Auth routes file with .js extensions added to imports
+﻿import { Router } from 'express';
+import { register, login, getProfile } from '../controllers/auth.controller.js';
+import { authenticateToken } from '../middleware/auth.middleware.js';
 
-import { register } from './register.js';
-import { login } from './login.js';
-import { logout } from './logout.js';
-import { getUserProfile } from './userProfile.js';
+const router = Router();
 
-// Define your routes here
+router.post('/register', register);
+router.post('/login', login);
+router.get('/profile', authenticateToken, getProfile);
 
-export default function authRoutes(app) {
-    app.post('/auth/register', register);
-    app.post('/auth/login', login);
-    app.post('/auth/logout', logout);
-    app.get('/auth/user_profile', getUserProfile);
-}
+export default router;
