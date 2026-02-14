@@ -1,5 +1,5 @@
 ﻿import { Request, Response } from 'express';
-import prisma from '../prisma';
+import prisma from '../prisma.js';
 
 const PAYDUNYA_BASE_URL = process.env.PAYDUNYA_BASE_URL || 'https://app.paydunya.com';
 const PAYDUNYA_API_PREFIX = process.env.PAYDUNYA_API_PREFIX || '';

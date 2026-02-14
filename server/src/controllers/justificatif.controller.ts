@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import prisma from '../prisma';
+import prisma from '../prisma.js';
 
 // SOUMETTRE UN JUSTIFICATIF
 export const soumettreJustificatif = async (req: Request, res: Response): Promise<void> => {

@@ -5,8 +5,8 @@ import {
   getMesPaiements,
   initierPaiementPaydunya,
   verifierPaiementPaydunya
-} from '../controllers/paiement.controller';
-import { authenticateToken } from '../middleware/auth.middleware';
+} from '../controllers/paiement.controller.js';
+import { authenticateToken } from '../middleware/auth.middleware.js';
 
 const router = Router();
 

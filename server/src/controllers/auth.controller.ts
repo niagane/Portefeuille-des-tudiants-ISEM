@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Prisma } from '@prisma/client';
-import prisma from '../prisma';
+import prisma from '../prisma.js';
 
 // INSCRIPTION ÉTUDIANT
 export const register = async (req: Request, res: Response): Promise<void> => {

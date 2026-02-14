@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { soumettreJustificatif, getMesJustificatifs } from '../controllers/justificatif.controller';
-import { authenticateToken } from '../middleware/auth.middleware';
+import { soumettreJustificatif, getMesJustificatifs } from '../controllers/justificatif.controller.js';
+import { authenticateToken } from '../middleware/auth.middleware.js';
 
 const router = Router();
 

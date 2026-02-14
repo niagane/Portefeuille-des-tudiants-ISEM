@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { creerReclamation, getMesReclamations } from '../controllers/reclamation.controller';
-import { authenticateToken } from '../middleware/auth.middleware';
+import { creerReclamation, getMesReclamations } from '../controllers/reclamation.controller.js';
+import { authenticateToken } from '../middleware/auth.middleware.js';
 
 const router = Router();
 

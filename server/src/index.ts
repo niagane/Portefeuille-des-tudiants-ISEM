@@ -1,17 +1,21 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Charger explicitement le .env du dossier server
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // Routes
-import authRoutes from './routes/auth.routes';
-import inscriptionRoutes from './routes/inscription.routes';
-import paiementRoutes from './routes/paiement.routes';
-import reclamationRoutes from './routes/reclamation.routes';
-import justificatifRoutes from './routes/justificatif.routes';
+import authRoutes from './routes/auth.routes.js';
+import inscriptionRoutes from './routes/inscription.routes.js';
+import paiementRoutes from './routes/paiement.routes.js';
+import reclamationRoutes from './routes/reclamation.routes.js';
+import justificatifRoutes from './routes/justificatif.routes.js';
 
 dotenv.config();
 
@@ -25,7 +29,7 @@ const allowedOrigins = configuredOrigin
 
 // Middlewares
 app.use(cors({
-  origin: (origin, callback) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
       return;
@@ -35,7 +39,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });

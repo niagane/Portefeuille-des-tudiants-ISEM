@@ -9,7 +9,7 @@
     "prisma:generate": "prisma generate --schema=server/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate deploy --schema=server/prisma/schema.prisma",
     "build": "pnpm prisma:generate && pnpm build:server",
-    "build:server": "cd server && tsc",
+    "build:server": "tsc",
     "start": "node server/src/index.ts"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "@types/node": "^20.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/jsonwebtoken": "^9.0.2",
+    "@types/cors": "^2.8.13",
     "prisma": "^5.0.0"
   }
 }
