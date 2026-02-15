@@ -74,11 +74,23 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
+    console.log('Tentative de connexion pour:', email);
 
     // Trouver l'étudiant
-    const etudiant = await prisma.etudiant.findUnique({
-      where: { email }
-    });
+    let etudiant;
+    try {
+      etudiant = await prisma.etudiant.findUnique({
+        where: { email }
+      });
+    } catch (dbError: any) {
+      console.error('Erreur base de données lors du login:', dbError);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur de connexion à la base de données.',
+        error: dbError.message
+      });
+      return;
+    }
 
     if (!etudiant) {
       res.status(401).json({
@@ -120,11 +132,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         niveau: etudiant.niveau
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur login:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur serveur lors de la connexion.'
+      message: 'Erreur serveur lors de la connexion.',
+      error: error.message
     });
   }
 };
