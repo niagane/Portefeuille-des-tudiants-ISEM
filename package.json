@@ -1,8 +1,8 @@
 {
-  "name": "server",
+  "name": "portefeuille-etudiants-isem",
   "version": "1.0.0",
   "description": "UGB Student Portal API",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only server/src/index.ts",
     "build": "npx prisma generate --schema=server/prisma/schema.prisma && tsc",
