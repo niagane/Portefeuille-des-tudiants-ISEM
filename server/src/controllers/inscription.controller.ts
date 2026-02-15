@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import prisma from '../prisma.js';
+import prisma from '../prisma';
 
 // CRÉER UNE INSCRIPTION
 export const creerInscription = async (req: Request, res: Response): Promise<void> => {

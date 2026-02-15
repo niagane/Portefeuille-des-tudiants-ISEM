@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,7 +24,7 @@ export default function LoginPage() {
       login(token, etudiant);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Erreur de connexion');
+      setError(err.response?.data?.message || 'Erreur de connexion');
     } finally {
       setLoading(false);
     }
@@ -41,16 +41,16 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-10">
           <Link href="/" className="inline-block w-16 h-16 bg-brown-dark rounded-3xl flex items-center justify-center text-3xl shadow-lg mb-6 hover:rotate-12 transition-transform">
-            ðŸŽ“
+            🎓
           </Link>
-          <h1 className="text-3xl font-black text-brown-dark tracking-tight">Portefeuille Ã‰tudiants ISEM UGB</h1>
-          <p className="text-brown-medium text-xs font-bold uppercase tracking-widest mt-2">AccÃ¨s Ã‰tudiant SÃ©curisÃ©</p>
+          <h1 className="text-3xl font-black text-brown-dark tracking-tight">Portefeuille Étudiants ISEM UGB</h1>
+          <p className="text-brown-medium text-xs font-bold uppercase tracking-widest mt-2">Accès Étudiant Sécurisé</p>
         </div>
 
         {/* Erreur */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl mb-8 text-sm font-medium flex items-center gap-3">
-            <span>âŒ</span> {error}
+            <span>❌</span> {error}
           </div>
         )}
 
@@ -75,12 +75,12 @@ export default function LoginPage() {
               <label className="text-[10px] font-black text-brown-medium uppercase tracking-[0.2em]">
                 Mot de passe
               </label>
-              <Link href="#" className="text-[10px] font-bold text-brown-dark hover:underline">OubliÃ© ?</Link>
+              <Link href="#" className="text-[10px] font-bold text-brown-dark hover:underline">Oublié ?</Link>
             </div>
             <input
               type="password"
               required
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+              placeholder="••••••••"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full px-6 py-4 bg-cream/30 border border-brown-light/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brown-medium focus:border-transparent text-brown-dark font-medium placeholder:text-brown-light/50 transition-all"
@@ -101,9 +101,9 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="text-center mt-10 pt-8 border-t border-brown-light/10">
           <p className="text-sm text-brown-medium font-medium">
-            Nouveau Ã  l'ISEM ?{' '}
+            Nouveau à l'ISEM ?{' '}
             <Link href="/register" className="text-brown-dark hover:underline font-black ml-1">
-              CrÃ©er un compte
+              Créer un compte
             </Link>
           </p>
         </div>

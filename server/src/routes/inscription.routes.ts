@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { creerInscription, getMesInscriptions } from '../controllers/inscription.controller.js';
-import { authenticateToken } from '../middleware/auth.middleware.js';
+import { creerInscription, getMesInscriptions } from '../controllers/inscription.controller';
+import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,14 +6,14 @@ import Link from 'next/link';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Inscription } from '@/types';
-import { getCourseChoices, normalizeNiveau, PARCOURS_BY_LEVEL, PARCOURS_LABELS } from '@/lib/academic-data';
 
-interface MaquetteFiche {
-  codeEtudiant: string;
-  adresse: string;
-  telephone: string;
-  parcours: string;
-}
+const MATIERES_PAR_NIVEAU: Record<string, string[]> = {
+  'L1': ['Mathématiques Discrètes', 'Algorithmique & C', 'Architecture des Ordinateurs', 'Anglais I', 'Techniques de Communication'],
+  'L2': ['Structures de Données', 'Programmation Orientée Objet', 'Systèmes d\'Exploitation', 'Réseaux Informatiques', 'Bases de Données'],
+  'L3': ['Génie Logiciel', 'Intelligence Artificielle', 'Sécurité Informatique', 'Développement Web Avancé', 'Gestion de Projet'],
+  'M1': ['Big Data', 'Cloud Computing', 'Machine Learning', 'Management SI', 'Recherche Opérationnelle'],
+  'M2': ['Architecture Microservices', 'Blockchain', 'Deep Learning', 'Audit Informatique', 'Thèse de Master']
+};
 
 export default function InscriptionPage() {
   const { etudiant, isLoading } = useAuth();
@@ -27,30 +27,11 @@ export default function InscriptionPage() {
     typeInscription: '',
     anneeAcademique: '2025-2026'
   });
-  const [fiche, setFiche] = useState<MaquetteFiche>({
-    codeEtudiant: '',
-    adresse: '',
-    telephone: '',
-    parcours: ''
-  });
-
-  const niveau = normalizeNiveau(etudiant?.niveau);
-  const matieresDisponibles = getCourseChoices(niveau, etudiant?.filiere);
-  const parcoursDisponibles = PARCOURS_BY_LEVEL[niveau] || [];
-  const parcoursObligatoire = parcoursDisponibles.length > 0;
 
   useEffect(() => {
     if (!isLoading && !etudiant) router.push('/login');
-    if (etudiant) {
-      fetchInscriptions();
-      setFiche((prev) => ({
-        ...prev,
-        codeEtudiant: etudiant.matricule || '',
-        telephone: etudiant.telephone || '',
-        parcours: parcoursDisponibles.includes(etudiant.filiere) ? etudiant.filiere : ''
-      }));
-    }
-  }, [etudiant, isLoading, niveau]);
+    if (etudiant) fetchInscriptions();
+  }, [etudiant, isLoading]);
 
   const fetchInscriptions = async () => {
     try {
@@ -62,8 +43,8 @@ export default function InscriptionPage() {
   };
 
   const toggleMatiere = (matiere: string) => {
-    setSelectedMatieres((prev) =>
-      prev.includes(matiere) ? prev.filter((m) => m !== matiere) : [...prev, matiere]
+    setSelectedMatieres(prev => 
+      prev.includes(matiere) ? prev.filter(m => m !== matiere) : [...prev, matiere]
     );
   };
 
@@ -75,25 +56,13 @@ export default function InscriptionPage() {
 
     if (formData.typeInscription === 'administrative') {
       window.open('https://portail.ugbnumerique.sn/#/home', '_blank');
-      setSuccess('Redirection vers le portail UGB pour l inscription administrative.');
-      setLoading(false);
-      return;
-    }
-
-    if (!fiche.codeEtudiant || !fiche.telephone) {
-      setError('Le code etudiant et le telephone sont obligatoires.');
-      setLoading(false);
-      return;
-    }
-
-    if (parcoursObligatoire && !fiche.parcours) {
-      setError('Le parcours est obligatoire pour ce niveau.');
+      setSuccess('Redirection vers le Portail UGB pour l\'inscription administrative.');
       setLoading(false);
       return;
     }
 
     if (formData.typeInscription === 'pedagogique' && selectedMatieres.length === 0) {
-      setError('Veuillez selectionner au moins une matiere.');
+      setError('Veuillez sélectionner au moins une matière.');
       setLoading(false);
       return;
     }
@@ -101,26 +70,14 @@ export default function InscriptionPage() {
     try {
       await api.post('/inscriptions', {
         ...formData,
-        matieres: {
-          selections: selectedMatieres,
-          fiche: {
-            niveau,
-            prenom: etudiant?.prenom,
-            nom: etudiant?.nom,
-            codeEtudiant: fiche.codeEtudiant,
-            parcours: fiche.parcours,
-            adresse: fiche.adresse,
-            telephone: fiche.telephone
-          }
-        }
+        matieres: selectedMatieres
       });
-
-      setSuccess('Fiche pedagogique soumise avec succes.');
+      setSuccess('Inscription pédagogique soumise avec succès !');
       fetchInscriptions();
       setFormData({ typeInscription: '', anneeAcademique: '2025-2026' });
       setSelectedMatieres([]);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erreur lors de l inscription');
+      setError(err.response?.data?.message || 'Erreur lors de l\'inscription');
     } finally {
       setLoading(false);
     }
@@ -134,10 +91,13 @@ export default function InscriptionPage() {
     }
   };
 
+  const matieresDisponibles = etudiant ? MATIERES_PAR_NIVEAU[etudiant.niveau] || [] : [];
+
   return (
     <div className="min-h-screen bg-cream">
+      {/* Header */}
       <header className="bg-brown-dark text-cream px-4 py-6 shadow-xl">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="w-10 h-10 bg-brown-medium rounded-full flex items-center justify-center hover:bg-brown-light transition-colors">
               ←
@@ -145,16 +105,17 @@ export default function InscriptionPage() {
             <h1 className="text-2xl font-bold tracking-tight">Inscription ISEM</h1>
           </div>
           <div className="px-4 py-1 bg-brown-medium rounded-full text-xs font-bold uppercase tracking-widest">
-            {niveau} - {etudiant?.filiere || 'Parcours'}
+            {etudiant?.niveau} - {etudiant?.filiere}
           </div>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+        {/* Formulaire */}
         <div className="bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-brown-light/20">
           <div className="bg-brown-dark/5 p-6 border-b border-brown-light/10">
-            <h2 className="text-xl font-bold text-brown-dark">Fiche d inscription (Maquette ISEM)</h2>
-            <p className="text-sm text-brown-medium">Formulaire adapte au niveau {niveau}</p>
+            <h2 className="text-xl font-bold text-brown-dark">Fiche d'Inscription</h2>
+            <p className="text-sm text-brown-medium">Remplissez les informations pour votre semestre</p>
           </div>
 
           <div className="p-8">
@@ -171,105 +132,65 @@ export default function InscriptionPage() {
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-4">
-                <label className="text-sm font-bold text-brown-dark uppercase tracking-widest">Type d inscription</label>
+                <label className="text-sm font-bold text-brown-dark uppercase tracking-widest">Type d'inscription</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, typeInscription: 'administrative' })}
-                    className={`p-6 rounded-3xl border-2 transition-all text-left ${
+                    className={`p-6 rounded-3xl border-2 transition-all text-left flex items-start gap-4 ${
                       formData.typeInscription === 'administrative'
                         ? 'border-brown-dark bg-brown-dark/5 shadow-inner'
                         : 'border-brown-light/20 hover:border-brown-medium'
                     }`}
                   >
-                    <div className="font-bold text-brown-dark">Administrative</div>
-                    <div className="text-brown-medium text-xs">Portail UGB officiel</div>
+                    <span className="text-3xl">🏛️</span>
+                    <div>
+                      <div className="font-bold text-brown-dark">Administrative</div>
+                      <div className="text-brown-medium text-xs">Portail UGB Officiel</div>
+                    </div>
                   </button>
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, typeInscription: 'pedagogique' })}
-                    className={`p-6 rounded-3xl border-2 transition-all text-left ${
+                    className={`p-6 rounded-3xl border-2 transition-all text-left flex items-start gap-4 ${
                       formData.typeInscription === 'pedagogique'
                         ? 'border-brown-dark bg-brown-dark/5 shadow-inner'
                         : 'border-brown-light/20 hover:border-brown-medium'
                     }`}
                   >
-                    <div className="font-bold text-brown-dark">Pedagogique</div>
-                    <div className="text-brown-medium text-xs">Selection des cours ISEM</div>
+                    <span className="text-3xl">📚</span>
+                    <div>
+                      <div className="font-bold text-brown-dark">Pédagogique</div>
+                      <div className="text-brown-medium text-xs">Choix des Matières ISEM</div>
+                    </div>
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-brown-dark uppercase tracking-wider">Code etudiant</label>
-                  <input
-                    value={fiche.codeEtudiant}
-                    onChange={(e) => setFiche({ ...fiche, codeEtudiant: e.target.value })}
-                    className="w-full px-4 py-3 bg-cream/30 border border-brown-light/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brown-medium"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-brown-dark uppercase tracking-wider">Telephone</label>
-                  <input
-                    value={fiche.telephone}
-                    onChange={(e) => setFiche({ ...fiche, telephone: e.target.value })}
-                    className="w-full px-4 py-3 bg-cream/30 border border-brown-light/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brown-medium"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-brown-dark uppercase tracking-wider">Adresse</label>
-                <input
-                  value={fiche.adresse}
-                  placeholder="Ville / quartier"
-                  onChange={(e) => setFiche({ ...fiche, adresse: e.target.value })}
-                  className="w-full px-4 py-3 bg-cream/30 border border-brown-light/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brown-medium"
-                />
-              </div>
-
-              {parcoursObligatoire && (
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-brown-dark uppercase tracking-wider">Parcours ({niveau})</label>
-                  <select
-                    value={fiche.parcours}
-                    onChange={(e) => setFiche({ ...fiche, parcours: e.target.value })}
-                    className="w-full px-4 py-3 bg-cream/30 border border-brown-light/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brown-medium"
-                  >
-                    <option value="">Choisir</option>
-                    {parcoursDisponibles.map((value) => (
-                      <option key={value} value={value}>{PARCOURS_LABELS[value] || value}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
               {formData.typeInscription === 'pedagogique' && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
                   <div className="flex justify-between items-end">
-                    <label className="text-sm font-bold text-brown-dark uppercase tracking-widest">Cours a valider ({niveau})</label>
-                    <span className="text-xs text-brown-medium font-medium">{selectedMatieres.length} selectionnee(s)</span>
+                    <label className="text-sm font-bold text-brown-dark uppercase tracking-widest">Choix des Matières ({etudiant?.niveau})</label>
+                    <span className="text-xs text-brown-medium font-medium">{selectedMatieres.length} sélectionnée(s)</span>
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     {matieresDisponibles.map((matiere) => (
-                      <button
-                        type="button"
+                      <div 
                         key={matiere}
                         onClick={() => toggleMatiere(matiere)}
-                        className={`text-left flex items-center gap-4 p-4 rounded-2xl border transition-all ${
+                        className={`flex items-center gap-4 p-4 rounded-2xl border cursor-pointer transition-all ${
                           selectedMatieres.includes(matiere)
                             ? 'bg-brown-dark text-cream border-brown-dark shadow-lg scale-[1.02]'
                             : 'bg-white border-brown-light/20 hover:border-brown-medium text-brown-dark'
                         }`}
                       >
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                           selectedMatieres.includes(matiere) ? 'border-cream bg-cream text-brown-dark' : 'border-brown-light'
                         }`}>
                           {selectedMatieres.includes(matiere) && '✓'}
                         </div>
                         <span className="font-medium">{matiere}</span>
-                      </button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -284,9 +205,9 @@ export default function InscriptionPage() {
                   {loading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-cream"></div>
                   ) : formData.typeInscription === 'administrative' ? (
-                    <>Aller sur le Portail UGB</>
+                    <><span>🔗</span> Aller sur le Portail UGB</>
                   ) : (
-                    <>Valider ma fiche pedagogique</>
+                    <><span>📝</span> Valider ma fiche pédagogique</>
                   )}
                 </button>
               </div>
@@ -294,6 +215,7 @@ export default function InscriptionPage() {
           </div>
         </div>
 
+        {/* Historique */}
         <div className="bg-white rounded-[2rem] shadow-xl p-8 border border-brown-light/20">
           <h2 className="text-xl font-bold text-brown-dark mb-6 flex items-center gap-3">
             <span className="w-2 h-8 bg-brown-medium rounded-full"></span>
@@ -303,20 +225,28 @@ export default function InscriptionPage() {
           {inscriptions.length === 0 ? (
             <div className="text-center py-12 border-2 border-dashed border-brown-light/20 rounded-3xl">
               <div className="text-5xl mb-4 opacity-20">📋</div>
-              <p className="text-brown-medium font-medium">Aucun dossier trouve</p>
+              <p className="text-brown-medium font-medium">Aucun dossier trouvé</p>
             </div>
           ) : (
             <div className="grid gap-4">
               {inscriptions.map((ins) => (
                 <div key={ins.id} className="group p-5 rounded-3xl border border-brown-light/10 hover:border-brown-medium transition-all hover:bg-brown-dark/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <p className="font-bold text-brown-dark capitalize">{ins.typeInscription}</p>
-                    <p className="text-brown-medium text-xs font-medium">Annee : {ins.anneeAcademique}</p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform">
+                      {ins.typeInscription === 'pedagogique' ? '📚' : '🏛️'}
+                    </div>
+                    <div>
+                      <p className="font-bold text-brown-dark capitalize">{ins.typeInscription}</p>
+                      <p className="text-brown-medium text-xs font-medium">Année : {ins.anneeAcademique}</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <p className="text-xs font-bold text-brown-dark">{new Date(ins.createdAt).toLocaleDateString('fr-FR')}</p>
+                    <div className="text-right hidden sm:block">
+                      <p className="text-[10px] text-brown-medium font-bold uppercase tracking-tighter">Date</p>
+                      <p className="text-xs font-bold text-brown-dark">{new Date(ins.createdAt).toLocaleDateString('fr-FR')}</p>
+                    </div>
                     <span className={`px-4 py-2 rounded-2xl text-xs font-bold ${getStatutColor(ins.statut)}`}>
-                      {ins.statut === 'en_attente' ? 'En attente' : ins.statut === 'validee' ? 'Validee' : 'Rejetee'}
+                      {ins.statut === 'en_attente' ? '⏳ En attente' : ins.statut === 'validee' ? '✅ Validée' : '❌ Rejetée'}
                     </span>
                   </div>
                 </div>

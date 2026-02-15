@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import prisma from '../prisma.js';
+import prisma from '../prisma';
 
 // CRÉER UNE RÉCLAMATION
 export const creerReclamation = async (req: Request, res: Response): Promise<void> => {

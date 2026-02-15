@@ -9,65 +9,66 @@ datasource db {
 }
 
 model Etudiant {
-  id            String         @id @default(uuid())
-  matricule     String         @unique
+  id            String   @id @default(uuid())
+  matricule     String   @unique
   nom           String
   prenom        String
-  email         String         @unique
+  email         String   @unique
   password      String
   telephone     String?
   dateNaissance DateTime?
   filiere       String
   niveau        String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
   inscriptions  Inscription[]
-  justificatifs Justificatif[]
   paiements     Paiement[]
   reclamations  Reclamation[]
+  justificatifs Justificatif[]
 }
 
 model Inscription {
   id              String   @id @default(uuid())
   etudiantId      String
+  etudiant        Etudiant @relation(fields: [etudiantId], references: [id])
   typeInscription String
   anneeAcademique String
+  matieres        String?  // JSON stringified list of subjects
   statut          String   @default("en_attente")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  matieres        String?
-  etudiant        Etudiant @relation(fields: [etudiantId], references: [id])
 }
 
 model Paiement {
   id              String   @id @default(uuid())
   etudiantId      String
+  etudiant        Etudiant @relation(fields: [etudiantId], references: [id])
   montant         Float
   typePaiement    String
   methodePaiement String
+  recuUrl         String?  // URL of the uploaded receipt
   statutPaiement  String   @default("en_attente")
   createdAt       DateTime @default(now())
-  recuUrl         String?
-  etudiant        Etudiant @relation(fields: [etudiantId], references: [id])
 }
 
 model Reclamation {
   id          String   @id @default(uuid())
   etudiantId  String
+  etudiant    Etudiant @relation(fields: [etudiantId], references: [id])
   objet       String
   description String
   statut      String   @default("en_attente")
   createdAt   DateTime @default(now())
-  etudiant    Etudiant @relation(fields: [etudiantId], references: [id])
 }
 
 model Justificatif {
   id         String   @id @default(uuid())
   etudiantId String
+  etudiant   Etudiant @relation(fields: [etudiantId], references: [id])
   motif      String
   dateDebut  DateTime
   dateFin    DateTime
   statut     String   @default("en_attente")
   createdAt  DateTime @default(now())
-  etudiant   Etudiant @relation(fields: [etudiantId], references: [id])
 }

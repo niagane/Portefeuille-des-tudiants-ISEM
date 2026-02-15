@@ -1,48 +1,25 @@
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Charger explicitement le .env du dossier server
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // Routes
-import authRoutes from './routes/auth.routes.js';
-import inscriptionRoutes from './routes/inscription.routes.js';
-import paiementRoutes from './routes/paiement.routes.js';
-import reclamationRoutes from './routes/reclamation.routes.js';
-import justificatifRoutes from './routes/justificatif.routes.js';
+import authRoutes from './routes/auth.routes';
+import inscriptionRoutes from './routes/inscription.routes';
+import paiementRoutes from './routes/paiement.routes';
+import reclamationRoutes from './routes/reclamation.routes';
+import justificatifRoutes from './routes/justificatif.routes';
 
 dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
-const defaultFrontendOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
-const configuredOrigin = process.env.FRONTEND_URL;
-const allowedOrigins = configuredOrigin
-  ? Array.from(new Set([...defaultFrontendOrigins, configuredOrigin]))
-  : defaultFrontendOrigins;
 
 // Middlewares
 app.use(cors({
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-      return;
-    }
-    callback(new Error(`CORS non autorise pour l origine: ${origin}`));
-  },
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true
 }));
 app.use(express.json());
-app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
 app.use(express.urlencoded({ extended: true }));
 
 // Route de test

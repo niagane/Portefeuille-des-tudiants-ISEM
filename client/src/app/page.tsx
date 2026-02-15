@@ -3,21 +3,17 @@
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export default function Home() {
   const { etudiant, isLoading } = useAuth();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     if (!isLoading && etudiant) {
       router.push('/dashboard');
     }
   }, [etudiant, isLoading, router]);
-
-  if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-cream overflow-hidden relative">
